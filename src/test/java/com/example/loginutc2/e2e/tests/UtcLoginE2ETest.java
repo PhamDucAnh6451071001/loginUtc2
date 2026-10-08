@@ -37,4 +37,14 @@ class UtcLoginE2ETest extends BaseTest {
         assertThat(loginPage.passwordValue()).isEqualTo("new-test-value");
     }
 
+    @Test
+    @DisplayName("TC03 - Form trống báo thiếu tên đăng nhập")
+    void tc03_emptyFormShowsUsernameError() {
+        LoginPage loginPage = new LoginPage(driver).open();
+
+        loginPage.submitExpectingError();
+
+        assertThat(loginPage.errorMessage()).isEqualTo("Bạn chưa nhập tên đăng nhập");
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
 }

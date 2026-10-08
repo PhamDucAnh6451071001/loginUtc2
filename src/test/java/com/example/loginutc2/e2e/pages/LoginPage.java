@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public final class LoginPage extends BasePage {
@@ -13,6 +14,8 @@ public final class LoginPage extends BasePage {
     private final By passwordField = By.name("userpwd");
     private final By loginButton = By.cssSelector("input.submit_login");
     private final By forgotPasswordLink = By.cssSelector("a[href='/Login/GetPass']");
+    private final By loginForm = By.cssSelector("form[action='/Login']");
+    private final By errorMessage = By.cssSelector(".form .error");
 
     public LoginPage(WebDriver driver) {
         super(driver);
@@ -82,4 +85,16 @@ public final class LoginPage extends BasePage {
         return visible(passwordField).getDomProperty("value");
     }
 
+    public LoginPage submitExpectingError() {
+        WebElement originalForm = visible(loginForm);
+        click(loginButton);
+        // The live UTC form performs a full POST, so wait for its response.
+        wait.until(ExpectedConditions.stalenessOf(originalForm));
+        visible(errorMessage);
+        return awaitReady();
+    }
+
+    public String errorMessage() {
+        return text(errorMessage);
+    }
 }

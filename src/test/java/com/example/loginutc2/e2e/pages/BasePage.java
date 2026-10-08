@@ -38,6 +38,11 @@ public abstract class BasePage {
         input.sendKeys(value);
     }
 
+    protected final void click(By locator) {
+        wait.until(ExpectedConditions.refreshed(
+                ExpectedConditions.elementToBeClickable(locator))).click();
+    }
+
 
     public final String title() {
         return driver.getTitle();
