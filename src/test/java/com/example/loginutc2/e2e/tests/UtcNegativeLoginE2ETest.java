@@ -1,8 +1,17 @@
 package com.example.loginutc2.e2e.tests;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.List;
+
 import com.example.loginutc2.e2e.base.BaseTest;
+import com.example.loginutc2.e2e.base.BrowserNetwork;
 import com.example.loginutc2.e2e.pages.LoginPage;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -216,6 +225,38 @@ class UtcNegativeLoginE2ETest extends BaseTest {
         assertThat(loginPage.isRememberMeSelected()).isTrue();
         loginPage.submitExpectingError();
 
+        assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
+
+    @Test
+    @Tag("network")
+    @DisplayName("TC27 - HTTP chuyển HTTPS trước khi gửi POST chứa mật khẩu giả")
+    void tc27_httpRedirectAndCredentialPostUseHttps() throws Exception {
+        URI httpLogin = URI.create(LoginPage.URL.replace("https://", "http://"));
+        HttpClient client = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .connectTimeout(Duration.ofSeconds(15)).build();
+        HttpRequest request = HttpRequest.newBuilder(httpLogin)
+                .timeout(Duration.ofSeconds(15)).GET().build();
+
+        // A direct HTTP check distinguishes the server redirect from Chrome auto-upgrade.
+        HttpResponse<Void> redirect = client.send(request, HttpResponse.BodyHandlers.discarding());
+        assertThat(redirect.statusCode()).isIn(301, 302, 307, 308);
+        URI destination = httpLogin.resolve(redirect.headers().firstValue("location").orElseThrow());
+        assertThat(destination.getScheme()).isEqualTo("https");
+        assertThat(destination.getHost()).isEqualTo("vanphongdientu.utc.edu.vn");
+        assertThat(destination.getPath()).isEqualTo("/Login");
+
+        BrowserNetwork network = new BrowserNetwork(driver);
+        LoginPage loginPage = new LoginPage(driver).openFromHttp();
+        assertThat(URI.create(driver.getCurrentUrl()).getScheme()).isEqualTo("https");
+        loginPage.loginExpectingError(UNKNOWN_USER, DUMMY_PASSWORD);
+
+        List<BrowserNetwork.Request> posts = network.loginPosts();
+        assertThat(posts).as("Captured actual login POSTs").hasSize(1);
+        assertThat(posts.get(0).hasPasswordBody()).isTrue();
+        assertThat(URI.create(posts.get(0).url()).getScheme()).isEqualTo("https");
         assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }

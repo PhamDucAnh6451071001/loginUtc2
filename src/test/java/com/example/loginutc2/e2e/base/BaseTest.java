@@ -1,6 +1,7 @@
 package com.example.loginutc2.e2e.base;
 
 import java.time.Duration;
+import java.util.logging.Level;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +11,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.logging.LogType;
+import org.openqa.selenium.logging.LoggingPreferences;
 
 @ExtendWith(ScreenshotWatcher.class)
 public abstract class BaseTest {
@@ -19,6 +22,11 @@ public abstract class BaseTest {
     @BeforeEach
     void startBrowser(TestInfo testInfo) {
         ChromeOptions options = new ChromeOptions();
+        if (testInfo.getTags().contains("network")) {
+            LoggingPreferences logging = new LoggingPreferences();
+            logging.enable(LogType.PERFORMANCE, Level.ALL);
+            options.setCapability("goog:loggingPrefs", logging);
+        }
         if (testInfo.getTags().contains("external-tab")) {
             // TC08 verifies the new tab and its URL, without awaiting all help-site resources.
             options.setPageLoadStrategy(PageLoadStrategy.NONE);

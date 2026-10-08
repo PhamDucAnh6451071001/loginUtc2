@@ -32,6 +32,12 @@ public final class LoginPage extends BasePage {
         return awaitReady();
     }
 
+    public LoginPage openFromHttp() {
+        driver.get(URL.replace("https://", "http://"));
+        wait.until(ExpectedConditions.urlToBe(URL));
+        return awaitReady();
+    }
+
     public LoginPage awaitReady() {
         visible(usernameField);
         visible(passwordField);
