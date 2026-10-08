@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -93,6 +94,16 @@ public final class LoginPage extends BasePage {
     public LoginPage submitExpectingError() {
         WebElement originalForm = visible(loginForm);
         click(loginButton);
+        return awaitErrorResponse(originalForm);
+    }
+
+    public LoginPage submitWithEnterExpectingError() {
+        WebElement originalForm = visible(loginForm);
+        visible(passwordField).sendKeys(Keys.ENTER);
+        return awaitErrorResponse(originalForm);
+    }
+
+    private LoginPage awaitErrorResponse(WebElement originalForm) {
         // The live UTC form performs a full POST, so wait for its response.
         wait.until(ExpectedConditions.stalenessOf(originalForm));
         visible(errorMessage);

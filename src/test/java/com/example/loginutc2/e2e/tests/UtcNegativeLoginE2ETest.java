@@ -193,4 +193,16 @@ class UtcNegativeLoginE2ETest extends BaseTest {
         assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }
+
+    @Test
+    @DisplayName("TC25 - Nhấn Enter với thông tin sai vẫn bị từ chối")
+    void tc25_invalidLoginSubmittedWithEnterIsRejected() {
+        LoginPage loginPage = new LoginPage(driver).open()
+                .enterUsername(UNKNOWN_USER).enterPassword(DUMMY_PASSWORD);
+
+        loginPage.submitWithEnterExpectingError();
+
+        assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
 }
