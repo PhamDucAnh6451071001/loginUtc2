@@ -165,4 +165,18 @@ class UtcNegativeLoginE2ETest extends BaseTest {
         assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }
+
+    @Test
+    @DisplayName("TC23 - Username dài 1.024 ký tự bị từ chối có kiểm soát")
+    void tc23_usernameWith1024CharactersIsRejected() {
+        String value = "u".repeat(1024);
+        LoginPage loginPage = new LoginPage(driver).open()
+                .enterUsername(value).enterPassword(DUMMY_PASSWORD);
+
+        assertThat(loginPage.usernameValue()).isEqualTo(value);
+        loginPage.submitExpectingError();
+
+        assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
 }
