@@ -96,4 +96,15 @@ class UtcNegativeLoginE2ETest extends BaseTest {
                 "Bạn chưa nhập mật khẩu", INVALID_CREDENTIALS);
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }
+
+    @Test
+    @DisplayName("TC17 - Username Unicode không tồn tại bị từ chối")
+    void tc17_unicodeUsernameIsRejected() {
+        LoginPage loginPage = new LoginPage(driver).open();
+
+        loginPage.loginExpectingError("selenium_qa_không_tồn_tại_98765", DUMMY_PASSWORD);
+
+        assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
 }
