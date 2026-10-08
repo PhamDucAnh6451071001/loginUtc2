@@ -1,7 +1,8 @@
 package com.example.loginutc2.e2e.base;
 
-import java.util.ArrayList;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ public final class BrowserNetwork {
     private final ChromeDriver driver;
     private final Json json = new Json();
     private final List<Request> requests = new ArrayList<>();
+    private final List<String> redirectUrls = new ArrayList<>();
 
     public BrowserNetwork(WebDriver driver) {
         if (!(driver instanceof ChromeDriver chromeDriver)) {
@@ -30,9 +32,14 @@ public final class BrowserNetwork {
 
     public List<Request> loginPosts() {
         collect();
+        URI login = URI.create(LoginPage.URL);
         return requests.stream()
                 .filter(request -> "POST".equals(request.method()))
-                .filter(request -> LoginPage.URL.equals(request.url()))
+                .filter(request -> {
+                    URI url = URI.create(request.url());
+                    // Include HTTP and query variants so transport/URL leaks cannot be filtered out.
+                    return login.getHost().equals(url.getHost()) && login.getPath().equals(url.getPath());
+                })
                 .toList();
     }
 
@@ -45,6 +52,13 @@ public final class BrowserNetwork {
         return Boolean.TRUE.equals(response.get("base64Encoded"))
                 ? new String(Base64.getDecoder().decode(body), StandardCharsets.UTF_8)
                 : body;
+    }
+
+    public List<String> observedUrls() {
+        collect();
+        List<String> urls = new ArrayList<>(redirectUrls);
+        requests.forEach(request -> urls.add(request.url()));
+        return List.copyOf(urls);
     }
 
     private void collect() {
@@ -63,6 +77,10 @@ public final class BrowserNetwork {
             boolean hasPasswordBody = request.get("postData") instanceof String body
                     && body.contains("userpwd=");
             requests.add(new Request(requestId, method, url, hasPasswordBody));
+            if (params.get("redirectResponse") instanceof Map<?, ?> redirect
+                    && redirect.get("url") instanceof String redirectUrl) {
+                redirectUrls.add(redirectUrl);
+            }
         }
     }
 

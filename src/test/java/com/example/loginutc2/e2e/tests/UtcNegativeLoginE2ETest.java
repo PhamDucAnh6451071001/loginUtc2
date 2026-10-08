@@ -1,11 +1,17 @@
 package com.example.loginutc2.e2e.tests;
 
 import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import com.example.loginutc2.e2e.base.BaseTest;
@@ -59,9 +65,12 @@ class UtcNegativeLoginE2ETest extends BaseTest {
     @Test
     @DisplayName("TC13 - Username dài 256 ký tự bị từ chối có kiểm soát")
     void tc13_usernameWith256CharactersIsRejected() {
-        LoginPage loginPage = new LoginPage(driver).open();
+        String username = "u".repeat(256);
+        LoginPage loginPage = new LoginPage(driver).open()
+                .enterUsername(username).enterPassword(DUMMY_PASSWORD);
 
-        loginPage.loginExpectingError("u".repeat(256), DUMMY_PASSWORD);
+        assertThat(loginPage.usernameValue()).isEqualTo(username);
+        loginPage.submitExpectingError();
 
         assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
         assertThat(loginPage.isOnLoginPage()).isTrue();
@@ -286,6 +295,50 @@ class UtcNegativeLoginE2ETest extends BaseTest {
                 Pattern.CASE_INSENSITIVE);
         assertThat(internalDetails.matcher(body).find())
                 .as("Login response must not contain selected internal-error signatures").isFalse();
+        assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
+
+    @Test
+    @Tag("network")
+    @DisplayName("TC29 - Request và redirect URL không chứa mật khẩu giả hay khóa token đã biết")
+    void tc29_observedUrlsHaveNoDummyPasswordOrSensitiveQueryKeys() {
+        String password = "invalid-url-test+value_98765";
+        BrowserNetwork network = new BrowserNetwork(driver);
+        LoginPage loginPage = new LoginPage(driver).open()
+                .enterUsername(UNKNOWN_USER).enterPassword(password);
+        assertThat(loginPage.passwordValue()).isEqualTo(password);
+
+        loginPage.submitExpectingError();
+
+        List<BrowserNetwork.Request> posts = network.loginPosts();
+        assertThat(posts).as("Captured actual login POSTs").hasSize(1);
+        assertThat(posts.get(0).hasPasswordBody()).isTrue();
+        List<String> urls = new ArrayList<>(network.observedUrls());
+        assertThat(urls).as("Observed network URLs before adding the current URL").isNotEmpty();
+        urls.add(driver.getCurrentUrl());
+        String encodedPassword = URLEncoder.encode(password, StandardCharsets.UTF_8)
+                .toLowerCase(Locale.ROOT);
+        Pattern sensitiveKeys = Pattern.compile(
+                "userpwd|password|passwd|pwd|access_token|refresh_token|id_token|sessionid|session_id|token",
+                Pattern.CASE_INSENSITIVE);
+
+        for (String url : urls) {
+            boolean containsPassword = url.contains(password)
+                    || url.toLowerCase(Locale.ROOT).contains(encodedPassword)
+                    || URLDecoder.decode(url, StandardCharsets.UTF_8).contains(password);
+            assertThat(containsPassword)
+                    .as("Observed URLs must not contain the dummy password, including URL encoding").isFalse();
+            String query = URI.create(url).getRawQuery();
+            if (query != null) {
+                boolean containsSensitiveKey = Arrays.stream(query.split("&"))
+                        .map(pair -> pair.split("=", 2)[0])
+                        .map(key -> URLDecoder.decode(key, StandardCharsets.UTF_8))
+                        .anyMatch(key -> sensitiveKeys.matcher(key).matches());
+                assertThat(containsSensitiveKey)
+                        .as("Observed URLs must not use known password or token query keys").isFalse();
+            }
+        }
         assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }
