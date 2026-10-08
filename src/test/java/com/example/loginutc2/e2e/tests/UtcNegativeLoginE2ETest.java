@@ -118,4 +118,15 @@ class UtcNegativeLoginE2ETest extends BaseTest {
         assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }
+
+    @Test
+    @DisplayName("TC19 - Username dạng email giả bị từ chối")
+    void tc19_emailShapedUsernameIsRejected() {
+        LoginPage loginPage = new LoginPage(driver).open();
+
+        loginPage.loginExpectingError("selenium_e2e_nonexistent@example.invalid", DUMMY_PASSWORD);
+
+        assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
 }
