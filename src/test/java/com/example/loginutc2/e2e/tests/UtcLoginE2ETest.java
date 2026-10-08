@@ -133,4 +133,14 @@ class UtcLoginE2ETest extends BaseTest {
         assertThat(loginPage.isSubmitEnabled()).isTrue();
     }
 
+    @Test
+    @DisplayName("TC09 - Có mật khẩu nhưng thiếu tên đăng nhập vẫn bị từ chối")
+    void tc09_missingUsernameShowsUsernameError() {
+        LoginPage loginPage = new LoginPage(driver).open();
+
+        loginPage.enterPassword("invalid-test-value").submitExpectingError();
+
+        assertThat(loginPage.errorMessage()).isEqualTo("Bạn chưa nhập tên đăng nhập");
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
 }

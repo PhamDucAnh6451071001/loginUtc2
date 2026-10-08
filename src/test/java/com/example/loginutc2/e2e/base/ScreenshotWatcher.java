@@ -17,9 +17,7 @@ public final class ScreenshotWatcher implements AfterTestExecutionCallback {
     @Override
     public void afterTestExecution(ExtensionContext context) {
         Throwable failure = context.getExecutionException().orElse(null);
-        // Credentials tests can expose personal information after login.
-        if (failure == null || failure instanceof TestAbortedException
-                || context.getTags().contains("credentials")) {
+        if (failure == null || failure instanceof TestAbortedException) {
             return;
         }
         WebDriver driver = ((BaseTest) context.getRequiredTestInstance()).currentDriver();
