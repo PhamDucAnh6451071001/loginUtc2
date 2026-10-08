@@ -47,4 +47,15 @@ class UtcLoginE2ETest extends BaseTest {
         assertThat(loginPage.errorMessage()).isEqualTo("Bạn chưa nhập tên đăng nhập");
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }
+
+    @Test
+    @DisplayName("TC04 - Thiếu mật khẩu hiển thị thông báo phù hợp")
+    void tc04_missingPasswordShowsPasswordError() {
+        LoginPage loginPage = new LoginPage(driver).open();
+
+        loginPage.enterUsername("selenium_e2e_nonexistent").submitExpectingError();
+
+        assertThat(loginPage.errorMessage()).isEqualTo("Bạn chưa nhập mật khẩu");
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
 }
