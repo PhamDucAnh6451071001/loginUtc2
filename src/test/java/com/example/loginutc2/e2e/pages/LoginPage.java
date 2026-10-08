@@ -1,6 +1,8 @@
 package com.example.loginutc2.e2e.pages;
 
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -18,6 +20,7 @@ public final class LoginPage extends BasePage {
     private final By errorMessage = By.cssSelector(".form .error");
     private final By rememberMeCheckbox = By.id("persistent");
     private final By rememberMeLabel = By.cssSelector("label.check[for='persistent']");
+    private final By helpLink = By.cssSelector("a[href='http://hotrokythuat.utc.edu.vn']");
 
     public LoginPage(WebDriver driver) {
         super(driver);
@@ -125,5 +128,32 @@ public final class LoginPage extends BasePage {
     public PasswordRecoveryPage openPasswordRecovery() {
         click(forgotPasswordLink);
         return new PasswordRecoveryPage(driver).awaitReady();
+    }
+
+    public String helpLinkTarget() {
+        return attribute(helpLink, "target");
+    }
+
+    public void openHelpInNewTab() {
+        Set<String> originalTabs = new HashSet<>(driver.getWindowHandles());
+        click(helpLink);
+        wait.until(ExpectedConditions.numberOfWindowsToBe(originalTabs.size() + 1));
+        String helpTab = driver.getWindowHandles().stream()
+                .filter(handle -> !originalTabs.contains(handle))
+                .findFirst().orElseThrow();
+        driver.switchTo().window(helpTab);
+        wait.until(browser -> "hotrokythuat.utc.edu.vn".equals(
+                URI.create(browser.getCurrentUrl()).getHost()));
+    }
+
+    public LoginPage closeExtraTabsAndReturnTo(String mainTab) {
+        for (String handle : new HashSet<>(driver.getWindowHandles())) {
+            if (!handle.equals(mainTab)) {
+                driver.switchTo().window(handle);
+                driver.close();
+            }
+        }
+        driver.switchTo().window(mainTab);
+        return awaitReady();
     }
 }

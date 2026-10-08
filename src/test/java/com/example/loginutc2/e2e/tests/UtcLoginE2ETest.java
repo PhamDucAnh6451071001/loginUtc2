@@ -1,10 +1,13 @@
 package com.example.loginutc2.e2e.tests;
 
+import java.net.URI;
+
 import com.example.loginutc2.e2e.base.BaseTest;
 import com.example.loginutc2.e2e.pages.LoginPage;
 import com.example.loginutc2.e2e.pages.PasswordRecoveryPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -105,4 +108,29 @@ class UtcLoginE2ETest extends BaseTest {
         assertThat(returnedPage.isOnLoginPage()).isTrue();
         assertThat(returnedPage.isSubmitEnabled()).isTrue();
     }
+
+    @Test
+    @Tag("external-tab")
+    @DisplayName("TC08 - Chuyển sang tab trợ giúp rồi đóng và quay về tab chính")
+    void tc08_helpOpensNewTabAndReturns() {
+        LoginPage loginPage = new LoginPage(driver).open();
+        String mainTab = driver.getWindowHandle();
+        assertThat(loginPage.helpLinkTarget()).isEqualTo("_blank");
+
+        try {
+            loginPage.openHelpInNewTab();
+
+            assertThat(driver.getWindowHandle()).isNotEqualTo(mainTab);
+            assertThat(driver.getWindowHandles()).hasSize(2);
+            assertThat(URI.create(driver.getCurrentUrl()).getHost()).isEqualTo("hotrokythuat.utc.edu.vn");
+        } finally {
+            loginPage.closeExtraTabsAndReturnTo(mainTab);
+        }
+
+        assertThat(driver.getWindowHandles()).containsExactly(mainTab);
+        assertThat(driver.getWindowHandle()).isEqualTo(mainTab);
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+        assertThat(loginPage.isSubmitEnabled()).isTrue();
+    }
+
 }

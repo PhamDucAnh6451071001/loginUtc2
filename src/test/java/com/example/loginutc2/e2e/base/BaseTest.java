@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
@@ -32,6 +33,10 @@ public abstract class BaseTest {
         }
 
         ChromeOptions options = new ChromeOptions();
+        if (testInfo.getTags().contains("external-tab")) {
+            // TC08 verifies the new tab and its URL, without awaiting all help-site resources.
+            options.setPageLoadStrategy(PageLoadStrategy.NONE);
+        }
         if (Boolean.parseBoolean(System.getProperty("utc.headless", "true"))) {
             options.addArguments("--headless=new");
         }
