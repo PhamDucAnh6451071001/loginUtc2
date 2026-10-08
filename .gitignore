@@ -3,8 +3,9 @@ HELP.md
 .env
 .env.*
 !.env.example
-# Keep Markdown notes local.
+# Keep local Markdown notes ignored; track the root README.
 *.md
+!/README.md
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
