@@ -205,4 +205,18 @@ class UtcNegativeLoginE2ETest extends BaseTest {
         assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }
+
+    @Test
+    @DisplayName("TC26 - Ghi nhớ đăng nhập không làm thông tin sai được chấp nhận")
+    void tc26_invalidLoginWithRememberMeIsRejected() {
+        LoginPage loginPage = new LoginPage(driver).open()
+                .enterUsername(UNKNOWN_USER).enterPassword(DUMMY_PASSWORD)
+                .setRememberMe(true);
+
+        assertThat(loginPage.isRememberMeSelected()).isTrue();
+        loginPage.submitExpectingError();
+
+        assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
 }
