@@ -142,18 +142,4 @@ TC01–TC09 kiểm tra form, dữ liệu thiếu/sai, checkbox, trang quên mậ
 
 Các ca chuỗi dài kiểm tra cách xử lý dữ liệu dài, không khẳng định giới hạn tài khoản. Các ca kiểm tra lỗi/URL chỉ bao phủ dấu hiệu được định nghĩa trong test, không thay thế kiểm toán bảo mật toàn bộ. CAPTCHA, đăng nhập thành công, API cần quyền truy cập và giới hạn số lần thử chưa nằm trong bộ test này.
 
-## 7. Xử lý lỗi thường gặp
 
-| Hiện tượng | Cách kiểm tra |
-| --- | --- |
-| Không thấy Chrome | Dùng `e2eTest`; kiểm tra có đang truyền `-Pheadless=true` hay không. Task `test`, `build` hoặc chạy ứng dụng không tự mở Chrome. |
-| Không tìm thấy Java/toolchain 17 | Kiểm tra `java -version`, `JAVA_HOME` và JDK 17 đã cài. Mở lại terminal sau khi sửa biến môi trường. |
-| Không tạo được phiên Chrome | Kiểm tra Chrome đã cài và mạng cho phép Selenium Manager tải ChromeDriver. |
-| `ERR_NAME_NOT_RESOLVED`, `ERR_NETWORK_CHANGED` hoặc timeout khi mở trang | Mở trang UTC thủ công để kiểm tra DNS/kết nối. Đọc log và ảnh lỗi trước khi kết luận lỗi do dữ liệu kiểm thử. |
-| Timeout chờ phần tử | Kiểm tra trang đã tải đúng form; có thể dùng `-PtimeoutSeconds=30` nếu phần tử tải chậm. Tham số này không sửa lỗi mạng hay locator đã thay đổi. |
-
-## 8. Quy ước commit
-
-Mỗi test case được thêm bằng một commit riêng, sau khi chạy và đọc kết quả của chính ca đó. Commit cấu hình và tài liệu dùng commit riêng.
-
-`README.md` được theo dõi trong Git; các ghi chú Markdown khác, `.env`, cache và kết quả build vẫn được ignore.
