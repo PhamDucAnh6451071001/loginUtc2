@@ -31,6 +31,14 @@ public abstract class BasePage {
         return visible(locator).getDomAttribute(name);
     }
 
+    protected final void type(By locator, String value) {
+        WebElement input = wait.until(ExpectedConditions.refreshed(
+                ExpectedConditions.elementToBeClickable(locator)));
+        input.clear();
+        input.sendKeys(value);
+    }
+
+
     public final String title() {
         return driver.getTitle();
     }

@@ -63,4 +63,23 @@ public final class LoginPage extends BasePage {
     public String forgotPasswordText() {
         return text(forgotPasswordLink);
     }
+
+    public LoginPage enterUsername(String username) {
+        type(usernameField, username);
+        return this;
+    }
+
+    public LoginPage enterPassword(String password) {
+        type(passwordField, password);
+        return this;
+    }
+
+    public String usernameValue() {
+        return visible(usernameField).getDomProperty("value");
+    }
+
+    public String passwordValue() {
+        return visible(passwordField).getDomProperty("value");
+    }
+
 }

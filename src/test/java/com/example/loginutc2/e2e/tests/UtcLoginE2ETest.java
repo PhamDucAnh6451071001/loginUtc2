@@ -24,4 +24,17 @@ class UtcLoginE2ETest extends BaseTest {
         assertThat(loginPage.isSubmitEnabled()).isTrue();
         assertThat(loginPage.forgotPasswordText()).isEqualTo("Bạn quên mật khẩu đăng nhập ?");
     }
+
+    @Test
+    @DisplayName("TC02 - Nhập lại dữ liệu phải xóa giá trị cũ")
+    void tc02_typingReplacesPreviousInput() {
+        LoginPage loginPage = new LoginPage(driver).open();
+
+        loginPage.enterUsername("old-user").enterPassword("old-test-value");
+        loginPage.enterUsername("selenium_e2e_nonexistent").enterPassword("new-test-value");
+
+        assertThat(loginPage.usernameValue()).isEqualTo("selenium_e2e_nonexistent");
+        assertThat(loginPage.passwordValue()).isEqualTo("new-test-value");
+    }
+
 }
