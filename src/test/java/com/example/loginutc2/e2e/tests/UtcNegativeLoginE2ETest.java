@@ -151,4 +151,18 @@ class UtcNegativeLoginE2ETest extends BaseTest {
         assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }
+
+    @Test
+    @DisplayName("TC22 - Password sai có dấu cách hai đầu bị từ chối")
+    void tc22_paddedInvalidPasswordIsRejected() {
+        String password = " " + DUMMY_PASSWORD + " ";
+        LoginPage loginPage = new LoginPage(driver).open()
+                .enterUsername(UNKNOWN_USER).enterPassword(password);
+
+        assertThat(loginPage.passwordValue()).isEqualTo(password);
+        loginPage.submitExpectingError();
+
+        assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
 }
