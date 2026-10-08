@@ -34,4 +34,15 @@ class UtcNegativeLoginE2ETest extends BaseTest {
         assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }
+
+    @Test
+    @DisplayName("TC12 - Username chỉ có ký tự đặc biệt bị từ chối")
+    void tc12_punctuationOnlyUsernameIsRejected() {
+        LoginPage loginPage = new LoginPage(driver).open();
+
+        loginPage.loginExpectingError("@#$%^", DUMMY_PASSWORD);
+
+        assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
 }
