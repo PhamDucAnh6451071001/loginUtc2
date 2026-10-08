@@ -107,4 +107,15 @@ class UtcNegativeLoginE2ETest extends BaseTest {
         assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }
+
+    @Test
+    @DisplayName("TC18 - Password Unicode sai bị từ chối")
+    void tc18_unicodePasswordIsRejected() {
+        LoginPage loginPage = new LoginPage(driver).open();
+
+        loginPage.loginExpectingError(UNKNOWN_USER, "sai_mật_khẩu_để_kiểm_thử_98765");
+
+        assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
 }
