@@ -58,4 +58,15 @@ class UtcLoginE2ETest extends BaseTest {
         assertThat(loginPage.errorMessage()).isEqualTo("Bạn chưa nhập mật khẩu");
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }
+
+    @Test
+    @DisplayName("TC05 - Thông tin không hợp lệ bị từ chối và ở lại Login")
+    void tc05_invalidCredentialsStayOnLoginPage() {
+        LoginPage loginPage = new LoginPage(driver).open();
+
+        loginPage.loginExpectingError("selenium_e2e_nonexistent", "invalid-test-value");
+
+        assertThat(loginPage.errorMessage()).isEqualTo("Tài khoản hoặc mật khẩu không đúng.");
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
 }

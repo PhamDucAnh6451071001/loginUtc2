@@ -97,4 +97,10 @@ public final class LoginPage extends BasePage {
     public String errorMessage() {
         return text(errorMessage);
     }
+
+    public LoginPage loginExpectingError(String username, String password) {
+        enterUsername(username);
+        enterPassword(password);
+        return submitExpectingError();
+    }
 }
