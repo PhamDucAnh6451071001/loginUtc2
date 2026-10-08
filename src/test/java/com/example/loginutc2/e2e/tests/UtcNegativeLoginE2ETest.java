@@ -6,6 +6,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.example.loginutc2.e2e.base.BaseTest;
 import com.example.loginutc2.e2e.base.BrowserNetwork;
@@ -257,6 +258,34 @@ class UtcNegativeLoginE2ETest extends BaseTest {
         assertThat(posts).as("Captured actual login POSTs").hasSize(1);
         assertThat(posts.get(0).hasPasswordBody()).isTrue();
         assertThat(URI.create(posts.get(0).url()).getScheme()).isEqualTo("https");
+        assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
+
+    @Test
+    @Tag("network")
+    @DisplayName("TC28 - Phản hồi đăng nhập sai không chứa dấu hiệu stack trace hoặc đường dẫn nội bộ")
+    void tc28_invalidLoginResponseHasNoSelectedDisclosureMarkers() {
+        BrowserNetwork network = new BrowserNetwork(driver);
+        LoginPage loginPage = new LoginPage(driver).open();
+
+        loginPage.loginExpectingError(UNKNOWN_USER, DUMMY_PASSWORD);
+
+        List<BrowserNetwork.Request> posts = network.loginPosts();
+        assertThat(posts).as("Captured actual login POSTs").hasSize(1);
+        assertThat(posts.get(0).hasPasswordBody()).isTrue();
+        String body = network.responseBody(posts.get(0));
+        assertThat(body.contains(INVALID_CREDENTIALS))
+                .as("Captured POST response must contain the expected login error").isTrue();
+
+        // Selected signatures provide limited disclosure coverage, not a complete security audit.
+        Pattern internalDetails = Pattern.compile(
+                "Exception Details:|Stack Trace:|Server Error in|Traceback \\(most recent call last\\)"
+                        + "|(?:System|Microsoft)\\.[\\w.]*Exception"
+                        + "|[a-z]:\\\\(?:inetpub|users|windows|program files)\\\\|/(?:var/www|srv/www)/",
+                Pattern.CASE_INSENSITIVE);
+        assertThat(internalDetails.matcher(body).find())
+                .as("Login response must not contain selected internal-error signatures").isFalse();
         assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }

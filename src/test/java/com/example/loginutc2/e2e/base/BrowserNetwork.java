@@ -1,6 +1,8 @@
 package com.example.loginutc2.e2e.base;
 
 import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +34,17 @@ public final class BrowserNetwork {
                 .filter(request -> "POST".equals(request.method()))
                 .filter(request -> LoginPage.URL.equals(request.url()))
                 .toList();
+    }
+
+    public String responseBody(Request request) {
+        Map<String, Object> response = driver.executeCdpCommand(
+                "Network.getResponseBody", Map.of("requestId", request.requestId()));
+        if (!(response.get("body") instanceof String body)) {
+            throw new IllegalStateException("Captured login response has no readable body");
+        }
+        return Boolean.TRUE.equals(response.get("base64Encoded"))
+                ? new String(Base64.getDecoder().decode(body), StandardCharsets.UTF_8)
+                : body;
     }
 
     private void collect() {
