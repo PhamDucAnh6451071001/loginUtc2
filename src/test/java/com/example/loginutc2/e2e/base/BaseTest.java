@@ -22,6 +22,8 @@ public abstract class BaseTest {
     @BeforeEach
     void startBrowser(TestInfo testInfo) {
         ChromeOptions options = new ChromeOptions();
+        // Wait for the document; unrelated images must not block form interactions.
+        options.setPageLoadStrategy(PageLoadStrategy.EAGER);
         if (testInfo.getTags().contains("network")) {
             LoggingPreferences logging = new LoggingPreferences();
             logging.enable(LogType.PERFORMANCE, Level.ALL);
@@ -31,7 +33,7 @@ public abstract class BaseTest {
             // TC08 verifies the new tab and its URL, without awaiting all help-site resources.
             options.setPageLoadStrategy(PageLoadStrategy.NONE);
         }
-        if (Boolean.parseBoolean(System.getProperty("utc.headless", "true"))) {
+        if (Boolean.parseBoolean(System.getProperty("utc.headless", "false"))) {
             options.addArguments("--headless=new");
         }
         options.addArguments("--window-size=1920,1080", "--no-first-run");

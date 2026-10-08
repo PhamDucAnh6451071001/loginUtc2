@@ -46,7 +46,7 @@ tasks.register('e2eTest', Test) {
     shouldRunAfter tasks.named('test')
     workingDir projectDir
     systemProperty 'file.encoding', 'UTF-8'
-    systemProperty 'utc.headless', providers.gradleProperty('headless').getOrElse('true')
+    systemProperty 'utc.headless', providers.gradleProperty('headless').getOrElse('false')
     systemProperty 'utc.timeoutSeconds', providers.gradleProperty('timeoutSeconds').getOrElse('15')
     systemProperty 'junit.jupiter.execution.parallel.enabled', 'false'
     outputs.upToDateWhen { false }
