@@ -29,4 +29,29 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    exclude '**/e2e/**'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.register('e2eTest', Test) {
+    description = 'Runs Selenium tests against the live UTC login website.'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    include '**/e2e/tests/*Test.class'
+    useJUnitPlatform()
+    shouldRunAfter tasks.named('test')
+    workingDir projectDir
+    systemProperty 'file.encoding', 'UTF-8'
+    systemProperty 'utc.headless', providers.gradleProperty('headless').getOrElse('true')
+    systemProperty 'utc.timeoutSeconds', providers.gradleProperty('timeoutSeconds').getOrElse('15')
+    systemProperty 'junit.jupiter.execution.parallel.enabled', 'false'
+    outputs.upToDateWhen { false }
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        exceptionFormat = 'full'
+    }
 }
