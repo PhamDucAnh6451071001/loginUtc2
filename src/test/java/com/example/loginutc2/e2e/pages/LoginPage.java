@@ -121,4 +121,9 @@ public final class LoginPage extends BasePage {
         wait.until(ExpectedConditions.elementSelectionStateToBe(rememberMeCheckbox, selected));
         return this;
     }
+
+    public PasswordRecoveryPage openPasswordRecovery() {
+        click(forgotPasswordLink);
+        return new PasswordRecoveryPage(driver).awaitReady();
+    }
 }

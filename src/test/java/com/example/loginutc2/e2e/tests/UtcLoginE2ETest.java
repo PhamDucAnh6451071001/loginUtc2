@@ -2,6 +2,7 @@ package com.example.loginutc2.e2e.tests;
 
 import com.example.loginutc2.e2e.base.BaseTest;
 import com.example.loginutc2.e2e.pages.LoginPage;
+import com.example.loginutc2.e2e.pages.PasswordRecoveryPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -87,5 +88,21 @@ class UtcLoginE2ETest extends BaseTest {
         assertThat(loginPage.isRememberMeSelected()).isFalse();
         loginPage.setRememberMe(false);
         assertThat(loginPage.isRememberMeSelected()).isFalse();
+    }
+
+    @Test
+    @DisplayName("TC07 - Mở trang quên mật khẩu và trở lại đăng nhập")
+    void tc07_forgotPasswordOpensRecoveryAndReturns() {
+        LoginPage loginPage = new LoginPage(driver).open();
+
+        PasswordRecoveryPage recoveryPage = loginPage.openPasswordRecovery();
+
+        assertThat(recoveryPage.isOnRecoveryPage()).isTrue();
+        assertThat(recoveryPage.title()).isEqualTo("Lấy lại mật khẩu");
+        assertThat(recoveryPage.backToLoginText()).isEqualTo("Trở lại đăng nhập?");
+
+        LoginPage returnedPage = recoveryPage.backToLogin();
+        assertThat(returnedPage.isOnLoginPage()).isTrue();
+        assertThat(returnedPage.isSubmitEnabled()).isTrue();
     }
 }
