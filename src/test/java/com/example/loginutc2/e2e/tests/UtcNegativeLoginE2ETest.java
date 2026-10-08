@@ -70,4 +70,17 @@ class UtcNegativeLoginE2ETest extends BaseTest {
         assertThat(loginPage.errorMessage()).isEqualTo(INVALID_CREDENTIALS);
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }
+
+    @Test
+    @DisplayName("TC15 - Username chỉ có dấu cách bị từ chối")
+    void tc15_spacesOnlyUsernameIsRejected() {
+        LoginPage loginPage = new LoginPage(driver).open();
+
+        loginPage.loginExpectingError("   ", DUMMY_PASSWORD);
+
+        // No trimming policy is specified; either controlled rejection is valid.
+        assertThat(loginPage.errorMessage()).isIn(
+                "Bạn chưa nhập tên đăng nhập", INVALID_CREDENTIALS);
+        assertThat(loginPage.isOnLoginPage()).isTrue();
+    }
 }
