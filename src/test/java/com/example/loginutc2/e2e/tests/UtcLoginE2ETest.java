@@ -69,4 +69,23 @@ class UtcLoginE2ETest extends BaseTest {
         assertThat(loginPage.errorMessage()).isEqualTo("Tài khoản hoặc mật khẩu không đúng.");
         assertThat(loginPage.isOnLoginPage()).isTrue();
     }
+
+    @Test
+    @DisplayName("TC06 - Checkbox ẩn được điều khiển bằng label hiển thị")
+    void tc06_rememberMeUsesVisibleLabel() {
+        LoginPage loginPage = new LoginPage(driver).open();
+
+        assertThat(loginPage.isNativeRememberMeVisible()).isFalse();
+        assertThat(loginPage.isRememberMeSelected()).isFalse();
+
+        loginPage.setRememberMe(true);
+        assertThat(loginPage.isRememberMeSelected()).isTrue();
+        loginPage.setRememberMe(true);
+        assertThat(loginPage.isRememberMeSelected()).isTrue();
+
+        loginPage.setRememberMe(false);
+        assertThat(loginPage.isRememberMeSelected()).isFalse();
+        loginPage.setRememberMe(false);
+        assertThat(loginPage.isRememberMeSelected()).isFalse();
+    }
 }

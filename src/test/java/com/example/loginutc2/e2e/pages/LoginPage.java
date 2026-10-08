@@ -16,6 +16,8 @@ public final class LoginPage extends BasePage {
     private final By forgotPasswordLink = By.cssSelector("a[href='/Login/GetPass']");
     private final By loginForm = By.cssSelector("form[action='/Login']");
     private final By errorMessage = By.cssSelector(".form .error");
+    private final By rememberMeCheckbox = By.id("persistent");
+    private final By rememberMeLabel = By.cssSelector("label.check[for='persistent']");
 
     public LoginPage(WebDriver driver) {
         super(driver);
@@ -102,5 +104,21 @@ public final class LoginPage extends BasePage {
         enterUsername(username);
         enterPassword(password);
         return submitExpectingError();
+    }
+
+    public boolean isNativeRememberMeVisible() {
+        return wait.until(ExpectedConditions.presenceOfElementLocated(rememberMeCheckbox)).isDisplayed();
+    }
+
+    public boolean isRememberMeSelected() {
+        return wait.until(ExpectedConditions.presenceOfElementLocated(rememberMeCheckbox)).isSelected();
+    }
+
+    public LoginPage setRememberMe(boolean selected) {
+        if (isRememberMeSelected() != selected) {
+            click(rememberMeLabel);
+        }
+        wait.until(ExpectedConditions.elementSelectionStateToBe(rememberMeCheckbox, selected));
+        return this;
     }
 }
